@@ -1,16 +1,16 @@
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
+import torch
+import torch.distributions as dist
 T=10
 D=100
 
 
 def U(theta,x,y,minibatch=False):
-    if minibatch:
-        idx=np.random.choice(x.shape[0],D,replace=False)
-        batch=zip(x[idx],y[idx])
-    else:
-        batch=zip(x,y)
+    dim=x.shape[0]
+    m = dist.MultivariateNormal(torch.zeros(dim), torch.eye(dim)))
+    res=-1*torch.sum()
     res=-1*np.sum([stats.multivariate_normal.logpdf(y_item,mean=np.dot(theta,x_item)) for (x_item,y_item) in batch])
     res*=x.shape[0]
     res/=D
