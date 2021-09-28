@@ -82,7 +82,8 @@ def Bayesian_regression_SMH(x,y,k):
         def U(theta):
             res=torch.tensor(0.)
             for i in range(m):
-                res+= torch.log(1+torch.exp(theta.matmul(torch.from_numpy(x[i]))))
+                res+= torch.exp(theta.matmul(torch.from_numpy(x[i])))
+                res+= torch.log(1+torch.exp(-1*theta.matmul(torch.from_numpy(x[i]))))
                 res-= y[i]*theta.matmul(torch.from_numpy(x[i]))
             return res
             # print(torch.log(torch.tensor(2.)))
@@ -127,7 +128,7 @@ def Bayesian_regression(x,y):
         theta_new=np.random.default_rng().multivariate_normal(mean=theta,cov=np.identity(num_param,dtype=np.float64))
         res=0.
         for x_i,y_i in zip(x,y):
-            res+=(-1*np.log(1+np.exp(np.dot(theta_new,x_i)))+y_i*np.dot(theta_new,x_i))
+            res+=( -1*np.dot(theta_new,x_i) -np.log(1+np.exp(-1*np.dot(theta_new,x_i)))+y_i*np.dot(theta_new,x_i))
             res-=(-1*np.log(1+np.exp(np.dot(theta,x_i)))+y_i*np.dot(theta,x_i))
         # print(res)
         u=np.random.default_rng().uniform(0,1)
