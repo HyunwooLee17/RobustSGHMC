@@ -27,10 +27,14 @@ class BNNmodel(nn.Module):
         x = F.relu(self.fc2(x))
         return F.log_softmax(self.fc3(x),dim=1)
 
-def step(model,lr):
+def SGHMC(grad,theta,eps,sigma,beta):
+    pass
+
+def step(model,):
     for p in model.parameters():
         print(p)
         d_p=p.grad.data
+        p=SGHMC(d_p,p)
 
 
 def train(model):
