@@ -1,0 +1,7 @@
+AMAGOLD
+
+Iter: 10, Test set: Average loss: 2.2892, Accuracy: 1277/10000 (12.77%)
+Iter: 20, Test set: Average loss: 2.1743, Accuracy: 4508/10000 (45.08%)
+
+
+Mine

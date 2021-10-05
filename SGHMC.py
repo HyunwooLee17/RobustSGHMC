@@ -30,8 +30,6 @@ def step(model,lr,weight_decay,alpha):
     for p in model.parameters():
         if not hasattr(p,'buf'):
             p.buf = torch.randn(p.size()).to(device)*np.sqrt(lr)
-        # print(p)
-        # i=i+1
         d_p = p.grad.data
         d_p.add_(weight_decay, p.data)
         eps = torch.randn(p.size()).to(device)
@@ -63,14 +61,21 @@ def train(model,epoch,traindata):
                 epoch, batch_idx * len(data), len(traindata.dataset),
                 100. * batch_idx / len(traindata), loss.data.item()))
 
-def test(model,testdata):
+def test(model,testdata,epoch):
     model.eval()
+    test_loss=0
+    correct=0
     with torch.no_grad():
         for data,target in testdata:
             data, target = data.to(device), target.to(device)
-            pred=model(data)
-            print(F.nll_loss(pred,target))
-
+            output=model(data)
+            test_loss+=F.nll_loss(output,target,reduction='sum')
+            pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
+            correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+    test_loss /= len(testdata.dataset)
+    print('\nIter: {}, Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(epoch,
+        test_loss, correct, len(testdata.dataset),
+        100. * correct / len(testdata.dataset)))
 
 def getData(batch_size):
     mnist_train = dsets.MNIST(root='MNIST_data/',
@@ -101,7 +106,7 @@ if __name__=="__main__":
     M=BNNmodel()
     M.to(device)
     traindata,testdata=getData(batch_size)
-    test(M,testdata)
+    test(M,testdata,-1)
     for epoch in range(100):
         train(M, epoch,traindata)
-        test(M,testdata)
+        test(M,testdata,epoch)

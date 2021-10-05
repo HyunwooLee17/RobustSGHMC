@@ -16,7 +16,7 @@ batch_size=2000
 USE_CUDA = torch.cuda.is_available() # GPU를 사용가능하면 True, 아니라면 False를 리턴
 device = torch.device("cuda" if USE_CUDA else "cpu") # GPU 사용 가능하면 사용하고 아니면 CPU 사용
 T=10
-
+weight_decay=5e-4
 class BNNmodel(nn.Module):
     def __init__(self):
         super().__init__()
@@ -31,58 +31,69 @@ class BNNmodel(nn.Module):
 
 
 
-def step(model,lr,beta,momentum_buf,traindata,mh_train_data,mh_correction=False):
+def step(model,lr,beta,momentum_buf,traindata,mh_train_data,mh_correction=True):
     model_old=deepcopy(model)
-    rho=0
+    rho=0.0
     momentum_buf_old=deepcopy(momentum_buf)
     model,momentum_buf,rho=AMAGOLD(model,momentum_buf,lr,beta,traindata)
     if mh_correction:
         for data, target in mh_train_data:
-                data, target = data.to(device), target.to(device)
-                model.zero_grad()
-                output = model(data)
-                U_new = F.nll_loss(output, target)
-                model_old.zero_grad()
-                output = model_old(data)
-                U_old = F.nll_loss(output, target)
-                break
+            data, target = data.to(device), target.to(device)
+            model.zero_grad()
+            output = model(data)
+            U_new = F.nll_loss(output, target)
+            model_old.zero_grad()
+            output = model_old(data)
+            U_old = F.nll_loss(output, target)
+            break
         # MH correction step
         a=(U_old-U_new)*datasize+rho
         u=torch.log(torch.rand(1))
+        print(u.item(),a.data.item())
         if u.item()<a.data.item():
+            print("accept")
             return model,momentum_buf
         else:
-            return model_old,-momentum_buf_old
+            # print(len(momentum_buf_old),len(momentum_buf))
+            return model_old,[-1*m for m in momentum_buf_old]
     return model,momentum_buf
 
 
 def AMAGOLD(model,momentum_buf,lr,beta,traindata):
-    rho=0
-    for t in range(T):
+    rho=0.0
+    t=-1
+    while True:
         for data, target in traindata:
             data, target = data.to(device), target.to(device)
-            model.zero_grad()
-            output=model(data)
-            U=F.nll_loss(output,target)*datasize
-            U.backward()
+            if t>=0:
+                model.zero_grad()
+                output=model(data)
+                U=F.nll_loss(output,target)*datasize
+                U.backward()
             i=0
             
             for p in model.parameters():
-                momentum_buf_old=deepcopy(momentum_buf[i])
-                if t==0:
+                if t==-1:
                     p.data+=0.5*momentum_buf[i]
                 else:
                     p.data+=momentum_buf[i]
-                U_grad=p.grad.data
-                eta=torch.randn(p.size()).to(device)
-                eta*=2*((lr*beta)**.5)
-                momentum_buf[i]=((1-beta)*momentum_buf[i]-lr*U_grad+eta)/(1+beta)
-                rho += torch.sum(U_grad * (momentum_buf_old + momentum_buf[i])) 
-                if t==T-1:
-                    p.data += 0.5*momentum_buf[i]
+                    U_grad=p.grad.data
+                    U_grad.add_(weight_decay, p.data)
+                    eta=torch.randn(p.size()).to(device)
+                    eta*=2*((lr*beta)**.5)
+                    momentum_buf_old=deepcopy(momentum_buf[i])
+                    momentum_buf[i]=((1-beta)*momentum_buf[i]-lr*U_grad+eta)/(1+beta)
+                    rho += torch.sum(U_grad * (momentum_buf_old + momentum_buf[i]))
+                    # print(rho)
+                    if t==T-1:
+                        p.data += 0.5*momentum_buf[i]
                 i+=1
+            t=t+1
+            if t==T:
+                break
+        if t==T:
             break
-    return model,momentum_buf,rho
+    return model,momentum_buf,0.5*rho
     
     
 
@@ -94,8 +105,8 @@ def train(model,traindata,mh_train_data,test_data):
     momentum_buf=[]
     for p in model.parameters():
         momentum_buf.append(torch.randn(p.size()).to(device)*np.sqrt(lr))
-    for i in range(20):
-        if i%1==0:
+    for i in range(200):
+        if i%10==0:
             test(model,test_data,i)
         model,momentum_buf=step(model,lr,beta,momentum_buf,traindata,mh_train_data)
 
@@ -142,5 +153,7 @@ def getData(batch_size):
 if __name__=="__main__":
     M=BNNmodel()
     M.to(device)
+    M.load_state_dict(torch.load('./checkpoints/sgd_init_epoch3.pt'))
+    torch.manual_seed(11)
     traindata,testdata,mh_train_data=getData(batch_size)
     train(M, traindata,mh_train_data,testdata)
