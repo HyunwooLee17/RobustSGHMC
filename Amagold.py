@@ -49,9 +49,9 @@ def step(model,lr,beta,momentum_buf,traindata,mh_train_data,mh_correction=True):
         # MH correction step
         a=(U_old-U_new)*datasize+rho
         u=torch.log(torch.rand(1))
-        print(u.item(),a.data.item())
+        # print(u.item(),a.data.item())
         if u.item()<a.data.item():
-            print("accept")
+            # print("accept")
             return model,momentum_buf
         else:
             # print(len(momentum_buf_old),len(momentum_buf))
@@ -103,28 +103,42 @@ def train(model,traindata,mh_train_data,test_data):
     lr=0.0005/datasize
     beta=5e-6
     momentum_buf=[]
+    model_vec=[model]
+    output_vec=torch.zeros(1000,10).to(device)
     for p in model.parameters():
         momentum_buf.append(torch.randn(p.size()).to(device)*np.sqrt(lr))
     for i in range(200):
         if i%10==0:
-            test(model,test_data,i)
+            test(model_vec,test_data,i,output_vec)
+            model_vec=[]
         model,momentum_buf=step(model,lr,beta,momentum_buf,traindata,mh_train_data)
+        model_vec.append(model)
+    test(model_vec,test_data,i,output_vec)
 
-def test(model,testdata,epoch):
-    model.eval()
+def test(model_vec,testdata,epoch,output_vec):
     test_loss=0
     correct=0
     with torch.no_grad():
         for data,target in testdata:
             data, target = data.to(device), target.to(device)
-            output=model(data)
-            test_loss+=F.nll_loss(output,target,reduction='sum')
-            pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
+            for model in model_vec:
+                model.eval()
+                output=model(data)
+                output_vec += output
+            # print(output_vec)
+            output_vec/=(epoch+1)
+            # output_tensor=torch.stack(output_vec)
+            # print(output_tensor)
+            # output=torch.mean(output_tensor,2,True)
+            # print(output)
+            test_loss+=F.nll_loss(output_vec,target,reduction='sum')
+            pred = output_vec.data.max(1, keepdim=True)[1] # get the index of the max log-probability
             correct += pred.eq(target.data.view_as(pred)).cpu().sum()
     test_loss /= len(testdata.dataset)
     print('\nIter: {}, Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(epoch,
         test_loss, correct, len(testdata.dataset),
         100. * correct / len(testdata.dataset)))
+    return output_vec
 
 def getData(batch_size):
     kwargs = {'num_workers': 1, 'pin_memory': True}
