@@ -1,0 +1,58 @@
+without burn-in, ensemble, No MH
+
+Iter: 10, Test set: Average loss: 1.4181, Accuracy: 6527/10000 (65.27%)
+Iter: 20, Test set: Average loss: 0.6221, Accuracy: 8522/10000 (85.22%)
+Iter: 30, Test set: Average loss: 0.8870, Accuracy: 8887/10000 (88.87%)
+Iter: 40, Test set: Average loss: 0.9043, Accuracy: 8868/10000 (88.68%)
+Iter: 50, Test set: Average loss: 0.7686, Accuracy: 8809/10000 (88.09%)
+Iter: 60, Test set: Average loss: 0.6581, Accuracy: 9031/10000 (90.31%)
+Iter: 70, Test set: Average loss: 0.6070, Accuracy: 9105/10000 (91.05%)
+Iter: 80, Test set: Average loss: 0.3701, Accuracy: 9295/10000 (92.95%)
+Iter: 90, Test set: Average loss: 0.3078, Accuracy: 9221/10000 (92.21%)
+Iter: 100, Test set: Average loss: 0.2687, Accuracy: 9329/10000 (93.29%)
+Iter: 110, Test set: Average loss: 0.2351, Accuracy: 9443/10000 (94.43%)
+Iter: 120, Test set: Average loss: 0.2381, Accuracy: 9449/10000 (94.49%)
+Iter: 130, Test set: Average loss: 0.2329, Accuracy: 9481/10000 (94.81%)
+
+
+
+with burn-in, ensemble, MH
+
+Iter: 10, Test set: Average loss: 0.1279, Accuracy: 9603/10000 (96.03%)
+Iter: 20, Test set: Average loss: 0.1282, Accuracy: 9603/10000 (96.03%)
+Iter: 30, Test set: Average loss: 0.1247, Accuracy: 9623/10000 (96.23%)
+Iter: 40, Test set: Average loss: 0.1242, Accuracy: 9631/10000 (96.31%)
+Iter: 50, Test set: Average loss: 0.1243, Accuracy: 9631/10000 (96.31%)
+Iter: 60, Test set: Average loss: 0.1243, Accuracy: 9631/10000 (96.31%)
+Iter: 70, Test set: Average loss: 0.1242, Accuracy: 9630/10000 (96.30%)
+Iter: 80, Test set: Average loss: 0.1239, Accuracy: 9633/10000 (96.33%)
+Iter: 90, Test set: Average loss: 0.1241, Accuracy: 9632/10000 (96.32%)
+Iter: 100, Test set: Average loss: 0.1245, Accuracy: 9627/10000 (96.27%)
+Iter: 110, Test set: Average loss: 0.1248, Accuracy: 9621/10000 (96.21%)
+Iter: 120, Test set: Average loss: 0.1254, Accuracy: 9620/10000 (96.20%)
+Iter: 130, Test set: Average loss: 0.1248, Accuracy: 9622/10000 (96.22%)
+Iter: 140, Test set: Average loss: 0.1251, Accuracy: 9619/10000 (96.19%)
+Iter: 150, Test set: Average loss: 0.1253, Accuracy: 9620/10000 (96.20%)
+
+without burn-in, ensemble, MH
+Iter: 10, Test set: Average loss: 2.2892, Accuracy: 1277/10000 (12.77%)
+Iter: 20, Test set: Average loss: 2.1743, Accuracy: 4508/10000 (45.08%)
+Iter: 30, Test set: Average loss: 2.2661, Accuracy: 1908/10000 (19.08%)
+Iter: 40, Test set: Average loss: 2.2662, Accuracy: 1909/10000 (19.09%)
+Iter: 50, Test set: Average loss: 2.2856, Accuracy: 1352/10000 (13.52%)
+Iter: 60, Test set: Average loss: 2.2857, Accuracy: 1369/10000 (13.69%)
+Iter: 70, Test set: Average loss: 2.0924, Accuracy: 5640/10000 (56.40%)
+Iter: 80, Test set: Average loss: 2.0029, Accuracy: 6068/10000 (60.68%)
+Iter: 90, Test set: Average loss: 1.7536, Accuracy: 6170/10000 (61.70%)
+Iter: 100, Test set: Average loss: 1.5872, Accuracy: 6330/10000 (63.30%)
+Iter: 110, Test set: Average loss: 1.1771, Accuracy: 7048/10000 (70.48%)
+Iter: 120, Test set: Average loss: 0.5720, Accuracy: 8239/10000 (82.39%)
+Iter: 130, Test set: Average loss: 0.7005, Accuracy: 8079/10000 (80.79%)
+Iter: 140, Test set: Average loss: 2.0780, Accuracy: 5387/10000 (53.87%)
+Iter: 150, Test set: Average loss: 1.3861, Accuracy: 6853/10000 (68.53%)
+Iter: 160, Test set: Average loss: 1.1737, Accuracy: 7258/10000 (72.58%)
+Iter: 170, Test set: Average loss: 0.7000, Accuracy: 8074/10000 (80.74%)
+Iter: 180, Test set: Average loss: 0.6136, Accuracy: 8193/10000 (81.93%)
+Iter: 190, Test set: Average loss: 0.9642, Accuracy: 7822/10000 (78.22%)
+
+

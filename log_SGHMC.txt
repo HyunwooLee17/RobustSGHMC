@@ -1,0 +1,39 @@
+
+temparature = 1
+
+Iter: 10, Test set: Average loss: 0.4677, Accuracy: 9618/10000 (96.18%)
+Iter: 20, Test set: Average loss: 0.3359, Accuracy: 9672/10000 (96.72%)
+Iter: 30, Test set: Average loss: 0.2975, Accuracy: 9685/10000 (96.85%)
+Iter: 40, Test set: Average loss: 0.2871, Accuracy: 9697/10000 (96.97%)
+Iter: 50, Test set: Average loss: 0.2855, Accuracy: 9706/10000 (97.06%)
+Iter: 60, Test set: Average loss: 0.2935, Accuracy: 9705/10000 (97.05%)
+Iter: 70, Test set: Average loss: 0.3044, Accuracy: 9705/10000 (97.05%)
+Iter: 80, Test set: Average loss: 0.3167, Accuracy: 9705/10000 (97.05%)
+Iter: 90, Test set: Average loss: 0.3294, Accuracy: 9707/10000 (97.07%)
+Iter: 100, Test set: Average loss: 0.3480, Accuracy: 9705/10000 (97.05%)
+
+temparature = 0.01
+
+Iter: 10, Test set: Average loss: 0.4496, Accuracy: 9624/10000 (96.24%)
+Iter: 20, Test set: Average loss: 0.3149, Accuracy: 9686/10000 (96.86%)
+Iter: 30, Test set: Average loss: 0.2709, Accuracy: 9708/10000 (97.08%)
+Iter: 40, Test set: Average loss: 0.2543, Accuracy: 9713/10000 (97.13%)
+Iter: 50, Test set: Average loss: 0.2481, Accuracy: 9714/10000 (97.14%)
+Iter: 60, Test set: Average loss: 0.2460, Accuracy: 9713/10000 (97.13%)
+Iter: 70, Test set: Average loss: 0.2461, Accuracy: 9717/10000 (97.17%)
+Iter: 80, Test set: Average loss: 0.2475, Accuracy: 9714/10000 (97.14%)
+Iter: 90, Test set: Average loss: 0.2495, Accuracy: 9716/10000 (97.16%)
+Iter: 100, Test set: Average loss: 0.2520, Accuracy: 9715/10000 (97.15%)
+
+temparature=(1/50000)**.5
+
+Iter: 10, Test set: Average loss: 0.4494, Accuracy: 9631/10000 (96.31%)
+Iter: 20, Test set: Average loss: 0.3127, Accuracy: 9697/10000 (96.97%)
+Iter: 30, Test set: Average loss: 0.2680, Accuracy: 9724/10000 (97.24%)
+Iter: 40, Test set: Average loss: 0.2513, Accuracy: 9727/10000 (97.27%)
+Iter: 50, Test set: Average loss: 0.2462, Accuracy: 9735/10000 (97.35%)
+Iter: 60, Test set: Average loss: 0.2452, Accuracy: 9727/10000 (97.27%)
+Iter: 70, Test set: Average loss: 0.2458, Accuracy: 9723/10000 (97.23%)
+Iter: 80, Test set: Average loss: 0.2477, Accuracy: 9715/10000 (97.15%)
+Iter: 90, Test set: Average loss: 0.2500, Accuracy: 9714/10000 (97.14%)
+Iter: 100, Test set: Average loss: 0.2525, Accuracy: 9711/10000 (97.11%)
