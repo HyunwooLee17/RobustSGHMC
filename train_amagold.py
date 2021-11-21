@@ -13,7 +13,7 @@ import sys
 import pickle
 from torch.utils.data import Subset
 from torch.linalg import matrix_norm
-from amagold import AMAGOLD
+from Amagold import AMAGOLD
 
 USE_CUDA = torch.cuda.is_available() # GPU를 사용가능하면 True, 아니라면 False를 리턴
 device = torch.device("cuda" if USE_CUDA else "cpu") # GPU 사용 가능하면 사용하고 아니면 CPU 사용
@@ -67,7 +67,7 @@ def test(model_vec, it):
     print('{} {:.4f} {:.2f} {:.4f} {:.4f}'.format(it,test_loss,100. * correct / len(test_loader.dataset),F_norm.data**(1/2), L2_norm))
 
 
-def run(optimizer):
+def run(optimizer,lr):
     model = Net()
     model.to(device)
     model.load_state_dict(torch.load('./checkpoints/sgd_init_epoch10.pt'))
@@ -86,6 +86,69 @@ def run(optimizer):
             # print(1.0*succ/it)
     print('=================================================================')
     
+def run_langevin(optimizer,lr):
+    model = Net()
+    model.to(device)
+    model.load_state_dict(torch.load('./checkpoints/sgd_init_epoch10.pt'))
+    succ=0
+    p_buf = []
+    for p in model.parameters():
+        p_buf.append(torch.zeros(p.size()).to(device)*np.sqrt(lr))
+    model_vec=[model]
+    test(model_vec, 0)
+    for it in range(1, 101):
+        sig,model,p_buf = optimizer.outer_loop(model,p_buf,lr)
+        succ += sig
+        model_vec.append(model)
+        if it%20==0:
+            test(model_vec, it)
+            # print(1.0*succ/it)
+    print('=================================================================')
+    
+
+def run_noBias(optimizer,lr):
+    model = Net()
+    model.to(device)
+    model.load_state_dict(torch.load('./checkpoints/sgd_init_epoch10.pt'))
+    model.fc1.bias.data.fill_(0.0)
+    model.fc2.bias.data.fill_(0.0)
+    model.fc3.bias.data.fill_(0.0)
+    succ=0
+    p_buf = []
+    for p in model.parameters():
+        p_buf.append(torch.randn(p.size()).to(device)*np.sqrt(lr))
+    model_vec=[model]
+    test(model_vec, 0)
+    for it in range(1, 101):
+        sig,model,p_buf = optimizer.outer_loop(model,p_buf,lr)
+        model.fc1.bias.data.fill_(0.0)
+        model.fc2.bias.data.fill_(0.0)
+        model.fc3.bias.data.fill_(0.0)
+        model_vec.append(model)
+        if it%20==0:
+            test(model_vec, it)
+            # print(1.0*succ/it)
+    print('=================================================================')
+
+def run_norm(optimizer,lr):
+    model = Net()
+    model.to(device)
+    model.load_state_dict(torch.load('./checkpoints/sgd_init_epoch10.pt'))
+    succ=0
+    p_buf = []
+    for p in model.parameters():
+        p_buf.append(torch.randn(p.size()).to(device)*np.sqrt(lr))
+    model_vec=[model]
+    test(model_vec, 0)
+    for it in range(1, 101):
+        sig,model,p_buf = optimizer.outer_loop(model,p_buf,lr)
+        succ += sig
+        model_vec.append(model)
+        if it%20==0:
+            test(model_vec, it)
+            # print(1.0*succ/it)
+    print('=================================================================')
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
@@ -139,54 +202,10 @@ if __name__ == '__main__':
     criterion = nn.NLLLoss()
     
     
-    # print('-----------------')
-    # print('without mh correction')
-    # print('------------------')
-    # mh=False
-    # opt_1 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1,mh)
-    # opt_2 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.01,mh)
-    # opt_3 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.0001,mh)
-    # opt_4 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1e-6,mh)
-    # run(opt_1)
-    # run(opt_2)
-    # run(opt_3)
-    # run(opt_4)
-    # print('-----------------')
-    # print('with full mh correction')
-    # print('------------------')
-    # mh=True
-    # opt_1 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1,mh)
-    # opt_2 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.01,mh)
-    # opt_3 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.0001,mh)
-    # opt_4 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1e-6,mh)
-    # run(opt_1)
-    # run(opt_2)
-    # run(opt_3)
-    # run(opt_4)
-    # print('-----------------')
-    # print('with stochastic mh correction')
-    # print('------------------')
-    # mh=True
-    # mh_trainloader = torch.utils.data.DataLoader(
-    #     Subset(datasets.MNIST('../data', train=True, download=True,
-    #                 transform=transforms.Compose([
-    #                     transforms.ToTensor(),
-    #                     transforms.Normalize((0.1307,), (0.3081,))
-    #                 ])),range(datasize)),
-    #     batch_size=batch_size, shuffle=True, **kwargs)
-    # opt_1 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1,mh)
-    # opt_2 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.01,mh)
-    # opt_3 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.0001,mh)
-    # opt_4 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1e-6,mh)
-    # run(opt_1)
-    # run(opt_2)
-    # run(opt_3)
-    # run(opt_4)
-
     print('\n Adjusting data size\n')
-    datasize = 60000
+    datasize = 10000
     test_size = 10000
-    batch_size= 5000
+    batch_size= 2000
     trainloader = torch.utils.data.DataLoader(
         Subset(datasets.MNIST('../data', train=True, download=True,
                     transform=transforms.Compose([
@@ -209,45 +228,46 @@ if __name__ == '__main__':
         batch_size=args.test_batch_size, shuffle=True, **kwargs)
     
     print('-----------------')
-    print('without mh correction')
+    print('langevin dynamics')
     print('------------------')
     mh=False
-    opt_1 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1,mh)
-    opt_2 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.01,mh)
-    opt_3 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.0001,mh)
-    opt_4 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1e-6,mh)
+    lr=0.1/datasize
+    opt_1 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, 1, criterion,1,mh)
+    opt_2 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, 1, criterion,0.01,mh)
+    opt_3 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, 1, criterion,0.0001,mh)
+    opt_4 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, 1, criterion,1e-6,mh)
+    run_langevin(opt_1,lr)
+    run_langevin(opt_2,lr)
+    run_langevin(opt_3,lr)
+    run_langevin(opt_4,lr)
+    # print('-----------------')
+    # print('with full mh correction')
+    # print('------------------')
+    # mh=True
+    # opt_1 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1,mh)
+    # opt_2 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.01,mh)
+    # opt_3 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.0001,mh)
+    # opt_4 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1e-6,mh)
     # run(opt_1)
     # run(opt_2)
     # run(opt_3)
     # run(opt_4)
-    # print('-----------------')
-    # print('with full mh correction')
-    # print('------------------')
-    mh=True
-    # opt_1 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1,mh)
-    # opt_2 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.01,mh)
-    # opt_3 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.0001,mh)
-    opt_4 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1e-6,mh)
-    # run(opt_1)
-    # run(opt_2)
-    # run(opt_3)
-    run(opt_4)
     print('-----------------')
     print('with stochastic mh correction')
     print('------------------')
-    mh=True
-    mh_trainloader = torch.utils.data.DataLoader(
-        Subset(datasets.MNIST('../data', train=True, download=True,
-                    transform=transforms.Compose([
-                        transforms.ToTensor(),
-                        transforms.Normalize((0.1307,), (0.3081,))
-                    ])),range(datasize)),
-        batch_size=batch_size, shuffle=True, **kwargs)
-    opt_1 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1,mh)
-    opt_2 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.01,mh)
-    opt_3 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.0001,mh)
-    opt_4 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1e-6,mh)
-    run(opt_1)
-    run(opt_2)
-    run(opt_3)
-    run(opt_4)
+    # mh=True
+    # mh_trainloader = torch.utils.data.DataLoader(
+    #     Subset(datasets.MNIST('../data', train=True, download=True,
+    #                 transform=transforms.Compose([
+    #                     transforms.ToTensor(),
+    #                     transforms.Normalize((0.1307,), (0.3081,))
+    #                 ])),range(datasize)),
+    #     batch_size=batch_size, shuffle=True, **kwargs)
+    # opt_1 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1,mh)
+    # opt_2 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.01,mh)
+    # opt_3 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,0.0001,mh)
+    # opt_4 = AMAGOLD(trainloader, mh_trainloader, datasize, T, weight_decay, args.beta, criterion,1e-6,mh)
+    # run(opt_1)
+    # run(opt_2)
+    # run(opt_3)
+    # run(opt_4)
